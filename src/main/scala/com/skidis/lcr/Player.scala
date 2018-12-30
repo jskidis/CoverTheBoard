@@ -5,5 +5,6 @@ trait Player {
   def itemCount: Int
 
   def loseItem: Player
+  def gainItem: Player
 }
 

@@ -22,13 +22,22 @@ class LcrRollProcessorSpec extends FunSpec with MustMatchers {
       validateItemCounts(newMap, playerItems, leftPlayerItems, rightPlayerItems)
     }
 
-    it("if center is rolled, current player count should be decremented") {
+    it("current player count is decremented when Center is rolled") {
       val playerMap = LcrPlayerMap(players)
       val player = playerMap.playerByName(playerName).get
       val roll = DirectionDieSide(Center)
 
       val newMap = LcrRollProcessor.processRoll(player, playerMap, roll)
       validateItemCounts(newMap, playerItems -1, leftPlayerItems, rightPlayerItems)
+    }
+
+    it("current player count is decremented and player to right count is incremented when Right is rolled") {
+      val playerMap = LcrPlayerMap(players)
+      val player = playerMap.playerByName(playerName).get
+      val roll = DirectionDieSide(Right)
+
+      val newMap = LcrRollProcessor.processRoll(player, playerMap, roll)
+      validateItemCounts(newMap, playerItems -1, leftPlayerItems, rightPlayerItems +1)
     }
   }
 

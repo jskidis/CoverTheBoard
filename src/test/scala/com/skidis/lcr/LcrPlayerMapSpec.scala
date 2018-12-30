@@ -1,5 +1,6 @@
 package com.skidis.lcr
 
+import com.skidis.lcr.Direction._
 import org.scalatest.{FunSpec, MustMatchers}
 
 class LcrPlayerMapSpec extends FunSpec with MustMatchers {
@@ -26,7 +27,22 @@ class LcrPlayerMapSpec extends FunSpec with MustMatchers {
       // Other players remain unchanged
       playerMap.playerByName(player1.playerName) mustBe Some(player1)
       playerMap.playerByName(player3.playerName) mustBe Some(player3)
+    }
 
+    it("returns the proper neighbor to the right and left of a player") {
+      playerMap.neighbor(player1, Left) mustBe Some(player2)
+      playerMap.neighbor(player1, Right) mustBe Some(player3)
+
+      playerMap.neighbor(player2, Left) mustBe Some(player3)
+      playerMap.neighbor(player2, Right) mustBe Some(player1)
+
+      playerMap.neighbor(player3, Left) mustBe Some(player1)
+      playerMap.neighbor(player3, Right) mustBe Some(player2)
+    }
+
+    it("returns none if player is not in map") {
+      val playerNotInMap = LcrPlayer("Some Other Player")
+      playerMap.neighbor(playerNotInMap, Left) mustBe None
     }
   }
 }
