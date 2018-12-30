@@ -1,6 +1,7 @@
 package com.skidis.lcr
 
 import com.skidis.lcr.Direction._
+import com.skidis.lcr.player.{LcrPlayer, LcrPlayerMap, PlayerMap}
 import org.scalatest.{FunSpec, MustMatchers}
 
 class LcrRollProcessorSpec extends FunSpec with MustMatchers {

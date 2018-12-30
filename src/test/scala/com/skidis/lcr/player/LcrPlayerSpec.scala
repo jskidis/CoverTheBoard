@@ -1,4 +1,4 @@
-package com.skidis.lcr
+package com.skidis.lcr.player
 
 import org.scalatest.{FunSpec, MustMatchers}
 

@@ -1,6 +1,7 @@
 package com.skidis.lcr
 
 import com.skidis.lcr.Direction._
+import com.skidis.lcr.player.{Player, PlayerMap}
 
 object LcrRollProcessor {
   def processRoll(player: Player, playerMap: PlayerMap, roll: LcrDieSide): PlayerMap = {

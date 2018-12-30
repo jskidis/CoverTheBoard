@@ -1,7 +1,6 @@
-package com.skidis.lcr
+package com.skidis.lcr.player
 
-import com.skidis.lcr.Direction.Direction
-import com.skidis.lcr.Direction._
+import com.skidis.lcr.Direction.{Center, Direction, Left, Right}
 
 case class LcrPlayerMap(players: Seq[Player]) extends PlayerMap {
   def playerByName(name: String): Option[Player] = players find (_.playerName == name)

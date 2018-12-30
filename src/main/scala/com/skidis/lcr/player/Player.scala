@@ -1,4 +1,4 @@
-package com.skidis.lcr
+package com.skidis.lcr.player
 
 trait Player {
   def playerName: String
@@ -7,4 +7,3 @@ trait Player {
   def loseItem: Player
   def gainItem: Player
 }
-

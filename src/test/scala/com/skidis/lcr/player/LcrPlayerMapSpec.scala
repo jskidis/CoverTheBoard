@@ -1,4 +1,4 @@
-package com.skidis.lcr
+package com.skidis.lcr.player
 
 import com.skidis.lcr.Direction._
 import org.scalatest.{FunSpec, MustMatchers}
