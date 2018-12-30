@@ -4,21 +4,24 @@ import com.skidis.lcr.Direction._
 import com.skidis.lcr.player.{Player, PlayerMap}
 
 object LcrRollProcessor {
-  def processRoll(player: Player, playerMap: PlayerMap, roll: LcrDieSide): PlayerMap = {
-    def playerLoses(): PlayerMap = {
-      playerMap.updatePlayer(player.loseItem)
+  def processRolls(player: Player, playerMap: PlayerMap, rolls: Seq[LcrDieSide]): PlayerMap = {
+
+    def recursiveProcessing(currPlayer: Player, accumMap: PlayerMap, remainingRolls: Seq[LcrDieSide]): PlayerMap = {
+      if (remainingRolls.isEmpty) accumMap
+      else {
+        val newMap = remainingRolls.head match {
+          case _@NoActionDieSide => accumMap
+          case DirectionDieSide(direction) if direction == Center => accumMap.playerLoses(currPlayer)
+          case DirectionDieSide(direction) => accumMap.playerLosesTo(currPlayer, direction)
+        }
+
+        val updatedPlayer =  newMap.playerByName(currPlayer.playerName).get
+        recursiveProcessing(updatedPlayer, newMap, remainingRolls.tail)
+      }
     }
 
-    def playerLosesTo(direction: Direction): PlayerMap = {
-      val neighbor = playerMap.neighbor(player, direction)
-      val updatedMap = playerMap.updatePlayer(player.loseItem)
-      (neighbor map { p => updatedMap.updatePlayer(p.gainItem) }).getOrElse(updatedMap)
-    }
-
-    roll match {
-      case _@NoActionDieSide => playerMap
-      case DirectionDieSide(direction) if direction == Center => playerLoses()
-      case DirectionDieSide(direction) => playerLosesTo(direction)
-    }
+    recursiveProcessing(player, playerMap, rolls)
   }
 }
+
+

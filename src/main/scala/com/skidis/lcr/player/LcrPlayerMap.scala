@@ -1,23 +1,25 @@
 package com.skidis.lcr.player
 
-import com.skidis.lcr.Direction.{Center, Direction, Left, Right}
+import com.skidis.lcr.Direction.Direction
 
 case class LcrPlayerMap(players: Seq[Player]) extends PlayerMap {
   def playerByName(name: String): Option[Player] = players find (_.playerName == name)
 
-  def updatePlayer(updatedPlayer: Player): PlayerMap = {
-    val newPlayerList = players map { p =>
-      if (p.playerName != updatedPlayer.playerName) p else updatedPlayer
-    }
-    copy(newPlayerList)
+  def playerLoses(player: Player): PlayerMap = updatePlayer(player.loseItem)
+  def playerGains(player: Player): PlayerMap = updatePlayer(player.gainItem)
+
+  def playerLosesTo(player: Player, direction: Direction): PlayerMap = {
+    val playerNeighbor = PlayerNeighbor(players)(player.playerName, direction)
+    val mapAfterLoss = updatePlayer(player.loseItem)
+    val mapAfterGain = playerNeighbor map (n => mapAfterLoss.playerGains(n))
+    mapAfterGain.getOrElse(mapAfterLoss)
   }
 
-  override def neighbor(player: Player, direction: Direction): Option[Player] = {
-    (playerByName(player.playerName), direction) match {
-      case (Some(p), Left) => Option(players((players.indexOf(p) + 1) % players.size))
-      case (Some(p), Right) => Option(players((players.indexOf(p) + players.size -1) % players.size))
-      case (Some(p), Center) => Option(players(players.indexOf(p) % players.size))
-      case _ => None
+  private def updatePlayer(updatedPlayer: Player): PlayerMap = {
+    val newPlayerList = players map { p =>
+      if (p.playerName != updatedPlayer.playerName) p
+      else updatedPlayer
     }
+    copy(newPlayerList)
   }
 }

@@ -4,45 +4,46 @@ import com.skidis.lcr.Direction._
 import org.scalatest.{FunSpec, MustMatchers}
 
 class LcrPlayerMapSpec extends FunSpec with MustMatchers {
-  describe("Lcr Player Map") {
-    val player1 = LcrPlayer("Player 1")
-    val player2 = LcrPlayer("Player 2")
-    val player3 = LcrPlayer("Player 3")
-    val playerMap = LcrPlayerMap(Seq(player1, player2, player3))
+  val (currPlayerName, leftPlayerName, rightPlayerName) = ("Current Player", "Left Player", "Right Player")
+  val (currPlayerItems, leftPlayerItems, rightPlayerItems) = (5, 3, 1)
+  val players = Seq(
+    LcrPlayer(currPlayerName, currPlayerItems),
+    LcrPlayer(leftPlayerName, leftPlayerItems),
+    LcrPlayer(rightPlayerName, rightPlayerItems)
+  )
 
+  describe("Lcr Player Map") {
     it("finds a player by name") {
-      playerMap.playerByName(player1.playerName) mustBe Some(player1)
-      playerMap.playerByName(player2.playerName) mustBe Some(player2)
+      val playerMap = LcrPlayerMap(players)
+
+      playerMap.playerByName(currPlayerName) mustBe Some(LcrPlayer(currPlayerName, currPlayerItems))
+      playerMap.playerByName(leftPlayerName) mustBe Some(LcrPlayer(leftPlayerName, leftPlayerItems))
       playerMap.playerByName("Player Not Found") mustBe None
     }
 
-    it("updating a player generates a new updated map") {
-      val newItemCount = 10
-      val updatedPlayer2 = player2.copy(itemCount = newItemCount)
-      val newPlayerMap = playerMap.updatePlayer(updatedPlayer2)
-
-      // Updated Player 2 is reflected
-      newPlayerMap.playerByName(player2.playerName) mustBe Some(updatedPlayer2)
-
-      // Other players remain unchanged
-      playerMap.playerByName(player1.playerName) mustBe Some(player1)
-      playerMap.playerByName(player3.playerName) mustBe Some(player3)
+    it("playerLoses returns a map with the item count of specified player decremented") {
+      val playerMap = LcrPlayerMap(players)
+      val updatedMap = playerMap.playerLoses(players.head)
+      validateItemCounts(updatedMap, currPlayerItems -1, leftPlayerItems, rightPlayerItems)
     }
 
-    it("returns the proper neighbor to the right and left of a player") {
-      playerMap.neighbor(player1, Left) mustBe Some(player2)
-      playerMap.neighbor(player1, Right) mustBe Some(player3)
-
-      playerMap.neighbor(player2, Left) mustBe Some(player3)
-      playerMap.neighbor(player2, Right) mustBe Some(player1)
-
-      playerMap.neighbor(player3, Left) mustBe Some(player1)
-      playerMap.neighbor(player3, Right) mustBe Some(player2)
+    it("playerGains returns a map with the item count of specified player incremented") {
+      val playerMap = LcrPlayerMap(players)
+      val updatedMap = playerMap.playerGains(players.head)
+      validateItemCounts(updatedMap, currPlayerItems +1, leftPlayerItems, rightPlayerItems)
     }
 
-    it("returns none if player is not in map") {
-      val playerNotInMap = LcrPlayer("Some Other Player")
-      playerMap.neighbor(playerNotInMap, Left) mustBe None
+    it("playerLosesTo returns a map with the item count of specified player decremented " +
+      "and the player in the specified direction incremented") {
+      val playerMap = LcrPlayerMap(players)
+      val updatedMap = playerMap.playerLosesTo(players.head, Right)
+      validateItemCounts(updatedMap, currPlayerItems -1, leftPlayerItems, rightPlayerItems +1)
     }
+  }
+
+  def validateItemCounts(playerMap: PlayerMap, playerCount: Int, leftPlayerCount: Int, rightPlayerCount: Int): Unit = {
+    playerMap.playerByName(currPlayerName).get.itemCount mustBe playerCount
+    playerMap.playerByName(leftPlayerName).get.itemCount mustBe leftPlayerCount
+    playerMap.playerByName(rightPlayerName).get.itemCount mustBe rightPlayerCount
   }
 }
