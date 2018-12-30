@@ -11,9 +11,9 @@ class DieRollerSpec extends FunSpec with MustMatchers {
   val die: Die[NumberSide] = new NumberDie(dieSides)
 
   // Oh the joys of testing randomness. I could use property based testing, but it seems overkill here
-  describe("Die") {
+  describe("Die Roller") {
     it("rolls a random side from die") {
-      val thrower = new DieThrower[NumberSide](dieSides)
+      val thrower = new BasicDieRoller[NumberSide](dieSides)
       val (roll1, roll2) = (thrower.next, thrower.next)
 
       // What are chance that both rolls happen to be the first two numbers
@@ -22,7 +22,7 @@ class DieRollerSpec extends FunSpec with MustMatchers {
     }
 
     it("returns all sides if thrown enough") {
-      val thrower = new DieThrower[NumberSide](dieSides)
+      val thrower = new BasicDieRoller[NumberSide](dieSides)
       val rolls = 1 to numSides * 20 map { _ => thrower.next }
 
       // Hopefully if you throw a 100 sided-die 20,000 times, each number will come up at least once
