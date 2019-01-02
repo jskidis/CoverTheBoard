@@ -1,4 +1,4 @@
-####WTF is *Cover Your Board*?
+#### WTF is *Cover Your Board*?
 
 I was trying to select a game/activity I could use for exploration with ML-based strategy algorithms. 
 I don't really want to do chess or poker, because everyone does chess or poker, 
