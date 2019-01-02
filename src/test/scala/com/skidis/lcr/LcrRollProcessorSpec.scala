@@ -8,66 +8,40 @@ class LcrRollProcessorSpec extends FunSpec with MustMatchers {
 
   val somePlayer = LcrPlayer("Some Player")
 
-  class MockMap(val playerThatLost: Option[Player] = None,
-    val directionLostTo: Option[Direction] = None, val numActions: Int = 0) extends PlayerMap {
-
-    override def playerByName(playerName: String): Option[Player] = Option(somePlayer)
-
-    override def playerLoses(player: Player): PlayerMap = {
-      new MockMap(Some(player), None, numActions +1)
-    }
-    override def playerLosesTo(player: Player, direction: Direction): PlayerMap = {
-      new MockMap(Some(player), Some(direction), numActions +1)
-    }
-
-    override def playerGains(player: Player): PlayerMap = this
-  }
-
   describe("Lcr Turn") {
-    it("if no action is rolled, no action should be taken on player map") {
-      val playerMap = new MockMap
-      val player = somePlayer
+    it("if no action is rolled, no outcomes should be returned") {
       val rolls = Seq(NoActionDieSide)
-
-      val returnedMap = castMapToMock(LcrRollProcessor.processRolls(player, playerMap, rolls))
-      returnedMap.numActions mustBe 0
-      returnedMap.playerThatLost mustBe None
-      returnedMap.directionLostTo mustBe None
+      val outcomes = LcrRollProcessor.processRolls(somePlayer, rolls)
+      outcomes mustBe empty
     }
 
     it("when Center is rolled, player should lose (to pot)") {
-      val playerMap = new MockMap
-      val player = somePlayer
       val rolls = Seq(DirectionDieSide(Center))
-
-      val returnedMap = castMapToMock(LcrRollProcessor.processRolls(player, playerMap, rolls))
-      returnedMap.playerThatLost mustBe Option(somePlayer)
-      returnedMap.directionLostTo mustBe None
+      val outcomes = LcrRollProcessor.processRolls(somePlayer, rolls)
+      outcomes must have size 1
+      outcomes.head mustBe PlayerLosesToPotOutcome(somePlayer)
     }
 
     it("when Right or Left is rolled, player should lost to player in that direction") {
-      val playerMap = new MockMap
-      val player = somePlayer
       val rolls = Seq(DirectionDieSide(Right))
-
-      val returnedMap = castMapToMock(LcrRollProcessor.processRolls(player, playerMap, rolls))
-      returnedMap.playerThatLost mustBe Option(somePlayer)
-      returnedMap.directionLostTo mustBe Option(Right)
+      val outcomes = LcrRollProcessor.processRolls(somePlayer, rolls)
+      outcomes must have size 1
+      outcomes.head mustBe PlayerLosesToOtherOutcome(somePlayer, Right)
     }
 
     it("processes multiple rolls") {
-      val playerMap = new MockMap
-      val player = somePlayer
       val rolls = Seq(DirectionDieSide(Right), DirectionDieSide(Right), NoActionDieSide,
         DirectionDieSide(Center), DirectionDieSide(Left), NoActionDieSide)
 
-      val returnedMap = castMapToMock(LcrRollProcessor.processRolls(player, playerMap, rolls))
-      returnedMap.numActions mustBe 4 // don't include no action rolls as they do not impact map
-      returnedMap.playerThatLost mustBe Option(somePlayer) // Mock retains only the last action which should have a Left
-      returnedMap.directionLostTo mustBe Option(Left)
-    }
+      val expectedOutcomes = Seq(
+        PlayerLosesToOtherOutcome(somePlayer, Right),
+        PlayerLosesToOtherOutcome(somePlayer, Right),
+        PlayerLosesToPotOutcome(somePlayer),
+        PlayerLosesToOtherOutcome(somePlayer, Left))
 
-    def castMapToMock(mockMap: PlayerMap): MockMap = mockMap match { case m: MockMap => m }
+      val outcomes = LcrRollProcessor.processRolls(somePlayer, rolls)
+      outcomes mustBe expectedOutcomes
+    }
   }
 }
 
